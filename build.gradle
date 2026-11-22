@@ -1,0 +1,119 @@
+plugins {
+    id "io.spring.dependency-management" version "${springDependencyBomVersion}"
+    id "java"
+}
+
+def gitDescription = providers.exec {
+    workingDir = rootDir
+    commandLine 'git', 'describe', '--tags', '--long', '--always', '--dirty', '--match', '[0-9]*', '--match', 'v[0-9]*'
+    ignoreExitValue = true
+}.standardOutput.asText.get().trim()
+
+def gitCommitHash = providers.exec {
+    workingDir = rootDir
+    commandLine 'git', 'rev-parse', '--short=8', 'HEAD'
+    ignoreExitValue = true
+}.standardOutput.asText.get().trim()
+
+def gitTag = gitDescription =~ /^v?(\d+)\.(\d+)\.(\d+)-(\d+)-g[0-9a-f]+(-dirty)?$/
+
+if (gitTag.matches()) {
+    def major = gitTag[0][1] as int
+    def minor = gitTag[0][2] as int
+    def patch = gitTag[0][3] as int
+    def commitsAhead = gitTag[0][4] as int
+    def dirty = gitTag[0][5] != null
+
+    version = commitsAhead == 0 && !dirty ? "${major}.${minor}.${patch}" : "${major}.${minor + 1}.0-SNAPSHOT"
+} else {
+    version = '0.1.0-SNAPSHOT'
+}
+
+ext.gitCommitHash = gitCommitHash ?: 'unknown'
+
+tasks.register('printVersion') {
+    doLast {
+        println project.version
+    }
+}
+
+allprojects {
+    apply plugin: 'jacoco'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
+    group = 'software.baig.oss'
+    version = rootProject.version
+
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs.add("-parameters")
+    }
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(25)
+        }
+    }
+
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+    pluginManager.withPlugin('org.springframework.boot') {
+        springBoot {
+            buildInfo {
+                properties {
+                    additional = [
+                            'commit-hash': rootProject.ext.gitCommitHash
+                    ]
+                }
+            }
+        }
+
+        bootRun {
+            jvmArgs = ["-Djava.net.preferIPv4Stack=true"]
+        }
+    }
+
+    dependencies {
+        // Spring
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+        implementation "org.springframework.boot:spring-boot-starter-web"
+        implementation "org.springframework.boot:spring-boot-starter-security"
+        testImplementation "org.springframework.boot:spring-boot-test-autoconfigure"
+        testImplementation "org.springframework.boot:spring-boot-starter-test"
+
+        // Custom
+        implementation 'com.google.guava:guava:33.4.0-jre'
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
+        }
+    }
+
+    jacocoTestReport {
+        reports {
+            html.required = true
+            xml.required = true
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+    test.outputs.upToDateWhen { false }
+
+    tasks.withType(Jar).tap {
+        configureEach {
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        }
+    }
+
+}

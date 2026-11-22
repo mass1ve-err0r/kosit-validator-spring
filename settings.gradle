@@ -1,0 +1,16 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'kosit-spring'
+include(':application')
+
+include(':frontend')
+
+include('submodules:api')
+include('submodules:api-models')
+include('submodules:core')
+include('submodules:security')
