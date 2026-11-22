@@ -1,0 +1,26 @@
+configurations {
+    xrechnungConfiguration {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    implementation project(":submodules:api-models")
+
+    implementation "org.apache.xmlgraphics:fop:2.11"
+    implementation "org.kosit:validator:1.6.4-SNAPSHOT"
+    implementation "org.glassfish.jaxb:jaxb-runtime:4.0.8"
+
+    xrechnungConfiguration(
+            "de.xeinkauf:xrechnung-3.0.2-validator-configuration:2027-07-31-SNAPSHOT@zip"
+    )
+}
+
+tasks.named('processResources') {
+    from({
+        zipTree(configurations.xrechnungConfiguration.singleFile)
+    }) {
+        into 'kosit'
+    }
+}
