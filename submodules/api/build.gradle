@@ -1,0 +1,5 @@
+dependencies {
+    implementation project(":submodules:api-models")
+    implementation project(":submodules:core")
+    implementation project(":submodules:security")
+}
