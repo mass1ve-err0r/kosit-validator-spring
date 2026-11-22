@@ -206,3 +206,6 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,gradle,intellij+all,node
+
+### CUSOTM
+application/src/main/resources/static/
