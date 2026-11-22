@@ -21,7 +21,7 @@ const apiLanguage = ref('C (libcurl)')
 const copiedExample = ref(false)
 const copiedCommand = ref(false)
 const localApiUrl = 'http://localhost:8090/api/validate'
-const hostedApiUrl = 'https://de.einvoicing.wiki/api/validate'
+const hostedApiUrl = 'https://de.e-invoicing.tools/api/validate'
 const apiUrl = ref(localApiUrl)
 const selectedApiUrl = computed(() => apiUrl.value.trim() || localApiUrl)
 const currentExample = computed(() => {
