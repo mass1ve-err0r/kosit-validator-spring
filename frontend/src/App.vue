@@ -215,7 +215,7 @@ onUnmounted(() => {
             <div class="topbar-inner">
                 <div class="brand">
                     <div class="brand-icon"><ReceiptEuro :size="18" :stroke-width="1.7" /></div>
-                    <span>KoSIT <span class="brand-muted">Toolbox</span></span>
+                    <span>XRechnung <span class="brand-muted">Toolbox</span></span>
                 </div>
                 <Button variant="ghost" size="sm" class="access-button" :aria-expanded="showApiGuide" aria-controls="api-guide" @click="showApiGuide = !showApiGuide">
                     <BookOpen :size="14" /> API-Anleitung <ChevronDown :size="13" :class="{ 'guide-chevron-open': showApiGuide }" />
